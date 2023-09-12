@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\MovingScript.cs" />
+    <Compile Include="Assets\Moving.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
