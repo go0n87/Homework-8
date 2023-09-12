@@ -13,23 +13,27 @@ public class Moving : MonoBehaviour
     public float AngularVelocity;
     public int StepWidth;
 
-    [SerializeField] private float LeftFootAngle;
-    [SerializeField] private float RightFootAngle;
-    [SerializeField] private float LeftHandAngle;
-    [SerializeField] private float RightHandAngle;
+    private Vector3 LastPosition;
 
-    [SerializeField] private float FootAngleRange;
+    private float LeftFootAngle;
+    private float RightFootAngle;
+    private float LeftHandAngle;
+    private float RightHandAngle;
+
+    private float FootAngleRange;
 
     private bool Reverse = false;
+    private bool isMoving = false;
 
-    [SerializeField] private int DirectionLeftFoot;
-    [SerializeField] private int DirectionRightFoot;
-    [SerializeField] private int DirectionLeftHand;
-    [SerializeField] private int DirectionRightHand;
+    private int DirectionLeftFoot;
+    private int DirectionRightFoot;
+    private int DirectionLeftHand;
+    private int DirectionRightHand;
 
-    // Start is called before the first frame update
+    
+    
     void Start()
-    {
+    {        
         FootAngleRange = 0;
         LeftFootAngle = 15;
         RightFootAngle = -15;
@@ -40,28 +44,43 @@ public class Moving : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (FootAngleRange >= StepWidth)
+
+        if (LastPosition != transform.position && isMoving == false)
         {
-            Reverse = !Reverse;
-            FootAngleRange = 0;
+            isMoving = !isMoving;
+        }
+        else if (LastPosition == transform.position && isMoving == true)
+        {
+            isMoving = !isMoving;
         }
 
-        DirectionLeftFoot = Reverse ? 1 : -1;
-        DirectionRightFoot = Reverse ? -1 : 1;
-        DirectionLeftHand = Reverse ? 1 : -1;
-        DirectionRightHand = Reverse ? -1 : 1;
+        if (isMoving)
+        {
+            if (FootAngleRange >= StepWidth)
+            {
+                Reverse = !Reverse;
+                FootAngleRange = 0;
+            }
 
-        LeftFootAngle = LeftFootAngle + (AngularVelocity * DirectionLeftFoot);
-        RightFootAngle = RightFootAngle + (AngularVelocity * DirectionRightFoot);
-        LeftHandAngle = LeftHandAngle + (AngularVelocity * DirectionLeftHand);
-        RightHandAngle = RightHandAngle + (AngularVelocity * DirectionRightHand);
+            DirectionLeftFoot = Reverse ? 1 : -1;
+            DirectionRightFoot = Reverse ? -1 : 1;
+            DirectionLeftHand = Reverse ? 1 : -1;
+            DirectionRightHand = Reverse ? -1 : 1;
 
-        LeftFoot.rotation = Quaternion.Euler((int)LeftFootAngle, 0, 0);
-        RightFoot.rotation = Quaternion.Euler((int)RightFootAngle, 0, 0);
-        LeftHand.rotation = Quaternion.Euler((int)LeftHandAngle, 0, 0);
-        RightHand.rotation = Quaternion.Euler((int)RightHandAngle, 0, 0);
+            LeftFootAngle += (AngularVelocity * DirectionLeftFoot);
+            RightFootAngle += (AngularVelocity * DirectionRightFoot);
+            LeftHandAngle += (AngularVelocity * DirectionLeftHand);
+            RightHandAngle += (AngularVelocity * DirectionRightHand);
 
-        FootAngleRange += AngularVelocity;
+            LeftFoot.rotation = Quaternion.Euler((int)LeftFootAngle, 0, 0);
+            RightFoot.rotation = Quaternion.Euler((int)RightFootAngle, 0, 0);
+            LeftHand.rotation = Quaternion.Euler((int)LeftHandAngle, 0, 0);
+            RightHand.rotation = Quaternion.Euler((int)RightHandAngle, 0, 0);
+
+            FootAngleRange += AngularVelocity;
+        }
+        
+        LastPosition = transform.position;
 
     }
 }

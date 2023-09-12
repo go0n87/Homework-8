@@ -1,11 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MovingScript : MonoBehaviour
-{
-    private Vector3[] Points;
-    private GameObject[] Objects;
+{ 
 
     public Transform Point1;
     public Transform Point2;
@@ -13,7 +12,12 @@ public class MovingScript : MonoBehaviour
     public Transform Point4;
     public Transform Point5;
     public Transform Point6;
-    public Transform Point7;    
+    public Transform Point7;
+
+    public static event Action<GameObject> FlagChanged;
+
+    private Vector3[] Points;
+    private GameObject[] Objects;
 
     public GameObject Object1;
     public GameObject Object2;
@@ -21,15 +25,16 @@ public class MovingScript : MonoBehaviour
     public GameObject Object4;
     public GameObject Object5;
     public GameObject Object6;
-    //public GameObject Object7;
 
-    [SerializeField]private Vector3 CurrentPoint;
+    private Vector3 CurrentPoint;
+
     [SerializeField]private GameObject CurrObject;
+    [SerializeField]private GameObject CurrentHandGrabber;
 
-    [SerializeField] private int NumberOfPoint = 0;
-    [SerializeField] private int NumberOfObject = 0;
+    private int NumberOfPoint = 0;
+    private int NumberOfObject = 0;
 
-    [SerializeField] private bool Reverse = false;
+    private bool Reverse = false;
 
     void Start()
     {
@@ -52,18 +57,19 @@ public class MovingScript : MonoBehaviour
         Objects[3] = Object4;
         Objects[4] = Object5;
         Objects[5] = Object6;
-        //Objects[6] = Object7;
 
         CurrObject = Objects[0];
 
+        CurrObject.transform.LookAt(CurrentPoint);
+
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (CurrentPoint == CurrObject.transform.position)
         {
-            ChangeCurrentPoint();          
+            ChangeCurrentPoint();
+            CurrObject.transform.LookAt(CurrentPoint,Vector3.up);
         }
 
         CurrObject.transform.position = Vector3.MoveTowards(CurrObject.transform.position, CurrentPoint, 0.005f);
@@ -81,7 +87,16 @@ public class MovingScript : MonoBehaviour
             ChangeCurrentObject();
         }
 
-        int ReverseNumber = Reverse == false ? 1 : -1;            
+        int ReverseNumber = Reverse == false ? 1 : -1;
+
+        if (Reverse)
+        {
+            Points[NumberOfPoint] += new Vector3(0.5f, 0f, 0.5f);            
+        }
+        else            
+        {
+            Points[NumberOfPoint] += new Vector3(-0.5f, 0f, -0.5f);
+        }
 
         CurrentPoint = Points[NumberOfPoint + ReverseNumber];
         
@@ -89,15 +104,17 @@ public class MovingScript : MonoBehaviour
     }
     private void ChangeCurrentObject()
     {
-        //if (NumberOfObject == 0 || NumberOfObject == Objects.Length - 1)
-        //if (NumberOfObject == Objects.Length && NumberOfPoint == 8)
-        //{
-        //    ReverseObject = !ReverseObject;
-        //}
 
         int ReverseNumber = Reverse == false ? 1 : -1;
+        int CurrentIndex = NumberOfObject + ReverseNumber;
 
-        CurrObject = Objects[NumberOfObject + ReverseNumber];
+        CurrObject = Objects[CurrentIndex];
+
+        CurrentHandGrabber = GameObject.Find("GrabHand"+ CurrentIndex.ToString());
+
+        Debug.Log("GrabHand" + CurrentIndex.ToString());
+
+        FlagChanged?.Invoke(CurrentHandGrabber);
 
         NumberOfObject += ReverseNumber;
     }
